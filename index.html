@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>75x35mm Etiket Üretici</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPDF/2.4.0/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
@@ -61,7 +60,6 @@
         <input type="text" id="productWeight" placeholder="Gramaj" />
         <input type="text" id="price" placeholder="Fiyat" />
         <button onclick="updateSVG()">SVG'yi Güncelle</button>
-        <button onclick="downloadImage()">Görsel İndir</button>
         <button onclick="downloadPDF()">PDF İndir</button>
     </div>
     <div id="svg-container">
@@ -70,7 +68,7 @@
             <!-- Arka Plan -->
             <rect width="283" height="132" fill="white" />
             <!-- Üst Kısım: Ürün Adı -->
-            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="25" text-anchor="start" fill="#2F4F4F">
+            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start" fill="#2F4F4F">
                 Ürün Adı
             </text>
             <!-- Alt Kısım: Gramaj -->
@@ -78,7 +76,7 @@
                 500g
             </text>
             <!-- Alt Kısım: Fiyat -->
-            <text id="svgPrice" x="10" y="110" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
+            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
                 10.00
             </text>
         </svg>
@@ -95,46 +93,19 @@
             document.getElementById('svgPrice').textContent = price;
         }
 
-        // Yüksek Çözünürlükte Görsel İndirme
-        function downloadImage() {
-            const svgContainer = document.getElementById('svg-container');
-            
-            // Yüksek çözünürlük için render
-            const scale = 2; // Çözünürlük oranı
-            domtoimage.toPng(svgContainer, { 
-                width: 283 * scale, 
-                height: 132 * scale,
-                style: {
-                    transform: 'scale(' + scale + ')',
-                    transformOrigin: 'top left'
-                }
-            })
-            .then(function (dataUrl) {
-                const link = document.createElement('a');
-                link.download = 'etiket.png';
-                link.href = dataUrl;
-                link.click();
-            });
-        }
-
-        // PDF İndirme
+        // PDF İndirme (SVG'yi Doğrudan PDF'ye Aktarma)
         function downloadPDF() {
-            const svgContainer = document.getElementById('svg-container');
+            const svgElement = document.getElementById('svgLabel'); // SVG elemanını alıyoruz
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
             
-            // Yüksek çözünürlük için render
-            const scale = 2; // Çözünürlük oranı
-            domtoimage.toPng(svgContainer, { 
-                width: 283 * scale, 
-                height: 132 * scale,
-                style: {
-                    transform: 'scale(' + scale + ')',
-                    transformOrigin: 'top left'
-                }
-            })
-            .then(function (dataUrl) {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF();
-                pdf.addImage(dataUrl, 'PNG', 10, 10, 75, 35);
+            // SVG'yi PDF'e ekle
+            pdf.svg(svgElement, {
+                x: 10,
+                y: 10,
+                width: 75,  // PDF boyutlarına uygun genişlik
+                height: 35  // PDF boyutlarına uygun yükseklik
+            }).then(() => {
                 pdf.save('etiket.pdf');
             });
         }
