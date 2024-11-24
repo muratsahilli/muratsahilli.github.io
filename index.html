@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVG Etiket Üretici</title>
+    <title>75x35mm Etiket Üretici</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
@@ -12,51 +12,71 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            margin: 20px;
         }
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-top: 20px;
         }
         input {
             margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 14px;
+            background-color: #2F4F4F;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3A5F5F;
         }
         #svg-container {
             border: 1px solid #ccc;
             margin-top: 20px;
             padding: 10px;
-        }
-        button {
-            margin: 10px;
+            background-color: #2F4F4F;
         }
     </style>
 </head>
 <body>
-    <h1>SVG Etiket Üretici</h1>
+    <h1>75x35mm Etiket Üretici</h1>
     <div class="container">
-        <input type="text" id="productName" placeholder="Ürün Adı" />
-        <input type="text" id="price" placeholder="Fiyat (₺)" />
+        <input type="text" id="productName" placeholder="Ürün Adı ve Gramaj" />
+        <input type="text" id="price" placeholder="Fiyat" />
         <button onclick="updateSVG()">SVG'yi Güncelle</button>
         <button onclick="downloadImage()">Görsel İndir</button>
         <button onclick="downloadPDF()">PDF İndir</button>
     </div>
     <div id="svg-container">
         <!-- SVG Alanı -->
-        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" width="300" height="140" viewBox="0 0 300 140">
-            <rect width="300" height="140" fill="white" stroke="black" />
-            <text id="svgProductName" x="150" y="50" font-size="20" text-anchor="middle">Ürün Adı</text>
-            <text id="svgPrice" x="150" y="100" font-size="25" font-weight="bold" text-anchor="middle">₺0.00</text>
+        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" width="283" height="132" viewBox="0 0 283 132">
+            <!-- Arka Plan -->
+            <rect width="283" height="132" fill="#2F4F4F" />
+            <!-- Üst Kısım: Ürün Adı ve Gramaj -->
+            <text id="svgProductName" x="141.5" y="50" font-family="Helvetica" font-size="20" text-anchor="middle" fill="#FFFFFF">
+                Ürün Adı ve Gramaj
+            </text>
+            <!-- Alt Kısım: Fiyat -->
+            <text id="svgPrice" x="141.5" y="100" font-family="Helvetica" font-size="25" font-weight="bold" text-anchor="middle" fill="#FFFFFF">
+                0.00
+            </text>
         </svg>
     </div>
     <script>
         // SVG Güncelleme
         function updateSVG() {
-            const productName = document.getElementById('productName').value || "Ürün Adı";
-            const price = document.getElementById('price').value || "₺0.00";
+            const productName = document.getElementById('productName').value || "Ürün Adı ve Gramaj";
+            const price = document.getElementById('price').value || "0.00";
 
             document.getElementById('svgProductName').textContent = productName;
-            document.getElementById('svgPrice').textContent = `₺${price}`;
+            document.getElementById('svgPrice').textContent = price;
         }
 
         // Görsel İndirme
@@ -78,7 +98,7 @@
                 .then(function (dataUrl) {
                     const { jsPDF } = window.jspdf;
                     const pdf = new jsPDF();
-                    pdf.addImage(dataUrl, 'PNG', 10, 10, 100, 50);
+                    pdf.addImage(dataUrl, 'PNG', 10, 10, 75, 35);
                     pdf.save('etiket.pdf');
                 });
         }
