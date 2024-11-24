@@ -111,26 +111,30 @@
 
         // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
         function downloadPNG() {
-            const svgElement = document.getElementById('svgLabel');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Canvas boyutlarını SVG'nin boyutlarına göre ayarlıyoruz
-            canvas.width = svgElement.viewBox.baseVal.width;
-            canvas.height = svgElement.viewBox.baseVal.height;
+    const svgElement = document.getElementById('svgLabel');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-            // Canvg kütüphanesini kullanarak SVG'yi canvas'a çiziyoruz
-            canvg(canvas, new XMLSerializer().serializeToString(svgElement));
+    // Set canvas dimensions to match the SVG's viewBox
+    canvas.width = svgElement.viewBox.baseVal.width;
+    canvas.height = svgElement.viewBox.baseVal.height;
 
-            // Canvas'tan PNG oluşturuyoruz
-            const pngDataUrl = canvas.toDataURL('image/png');
+    // Render the SVG onto the canvas using canvg
+    canvg(canvas, new XMLSerializer().serializeToString(svgElement));
 
-            // PNG'yi indiriyoruz
-            const link = document.createElement('a');
-            link.href = pngDataUrl;
-            link.download = 'etiket.png';
-            link.click();
+    // Create a PNG image from the canvas
+    const pngDataUrl = canvas.toDataURL('image/png');
+
+    // Create a link element for downloading the image
+    const link = document.createElement('a');
+    link.href = pngDataUrl;
+    link.download = 'etiket.png';
+
+    // Trigger the download using Blob API
+    const event = new MouseEvent('click');
+    link.dispatchEvent(event);
         }
+        
     </script>
 </body>
 </html>
