@@ -8,11 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 20px;
+            background-color: #f4f4f4;
         }
         .container {
             display: flex;
@@ -24,6 +25,9 @@
             margin: 5px;
             padding: 8px;
             font-size: 14px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         button {
             margin: 10px;
@@ -32,6 +36,7 @@
             background-color: #2F4F4F;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
@@ -41,14 +46,19 @@
             border: 1px solid #ccc;
             margin-top: 20px;
             padding: 10px;
-            background-color: #2F4F4F;
+            background-color: white;
+        }
+        #svg-container svg {
+            width: 283px;
+            height: 132px;
         }
     </style>
 </head>
 <body>
     <h1>75x35mm Etiket Üretici</h1>
     <div class="container">
-        <input type="text" id="productName" placeholder="Ürün Adı ve Gramaj" />
+        <input type="text" id="productName" placeholder="Ürün Adı" />
+        <input type="text" id="productWeight" placeholder="Gramaj" />
         <input type="text" id="price" placeholder="Fiyat" />
         <button onclick="updateSVG()">SVG'yi Güncelle</button>
         <button onclick="downloadImage()">Görsel İndir</button>
@@ -58,24 +68,30 @@
         <!-- SVG Alanı -->
         <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" width="283" height="132" viewBox="0 0 283 132">
             <!-- Arka Plan -->
-            <rect width="283" height="132" fill="#2F4F4F" />
-            <!-- Üst Kısım: Ürün Adı ve Gramaj -->
-            <text id="svgProductName" x="141.5" y="50" font-family="Helvetica" font-size="20" text-anchor="middle" fill="#FFFFFF">
-                Ürün Adı ve Gramaj
+            <rect width="283" height="132" fill="white" />
+            <!-- Üst Kısım: Ürün Adı -->
+            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start" fill="#2F4F4F">
+                Ürün Adı
+            </text>
+            <!-- Alt Kısım: Gramaj -->
+            <text id="svgProductWeight" x="10" y="70" font-family="Helvetica" font-size="12" text-anchor="start" fill="#2F4F4F">
+                500g
             </text>
             <!-- Alt Kısım: Fiyat -->
-            <text id="svgPrice" x="141.5" y="100" font-family="Helvetica" font-size="25" font-weight="bold" text-anchor="middle" fill="#FFFFFF">
-                0.00
+            <text id="svgPrice" x="10" y="110" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
+                10.00
             </text>
         </svg>
     </div>
     <script>
         // SVG Güncelleme
         function updateSVG() {
-            const productName = document.getElementById('productName').value || "Ürün Adı ve Gramaj";
-            const price = document.getElementById('price').value || "0.00";
+            const productName = document.getElementById('productName').value || "Ürün Adı";
+            const productWeight = document.getElementById('productWeight').value || "500g";
+            const price = document.getElementById('price').value || "10.00";
 
             document.getElementById('svgProductName').textContent = productName;
+            document.getElementById('svgProductWeight').textContent = productWeight;
             document.getElementById('svgPrice').textContent = price;
         }
 
