@@ -78,7 +78,7 @@
                 500g
             </text>
             <!-- Alt Kısım: Fiyat -->
-            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="end" fill="#2F4F4F">
+            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
                 10.00
             </text>
         </svg>
@@ -111,43 +111,46 @@
 
         // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
         function downloadPNG() {
-    const svgElement = document.getElementById('svgLabel'); // Get the SVG element
-    const canvas = document.createElement('canvas'); // Create a canvas
-    const ctx = canvas.getContext('2d'); // Get the canvas context
+    const svgElement = document.getElementById('svgLabel'); // The SVG to convert
+    const svgData = new XMLSerializer().serializeToString(svgElement); // Serialize the SVG
 
-    // Set canvas dimensions to match the SVG
-    canvas.width = svgElement.viewBox.baseVal.width || 283;
-    canvas.height = svgElement.viewBox.baseVal.height || 132;
+    // Create a blob from the SVG
+    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
 
-    // Use an XML serializer to convert the SVG into a string
-    const svgData = new XMLSerializer().serializeToString(svgElement);
+    // Create an object URL for the blob
+    const url = URL.createObjectURL(blob);
 
-    // Create an image to draw the SVG onto the canvas
+    // Create an image element and load the SVG blob
     const img = new Image();
-
-    // When the image loads, draw it on the canvas
     img.onload = () => {
-        ctx.drawImage(img, 0, 0); // Draw the image on the canvas
+        const canvas = document.createElement('canvas'); // Create a canvas
+        canvas.width = svgElement.viewBox.baseVal.width || 283; // Match the SVG dimensions
+        canvas.height = svgElement.viewBox.baseVal.height || 132;
 
-        // Convert the canvas to a PNG data URL
-        const pngDataUrl = canvas.toDataURL('image/png');
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0); // Draw the image onto the canvas
 
-        // Create a download link for the PNG
-        const link = document.createElement('a');
-        link.href = pngDataUrl;
-        link.download = 'etiket.png';
+        // Convert the canvas content to a PNG data URL
+        canvas.toBlob((blob) => {
+            // Create a download link for the PNG
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'etiket.png';
+            link.click();
 
-        // Trigger the download
-        link.click();
+            // Cleanup object URLs
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(link.href);
+        }, 'image/png');
     };
 
     // Handle image loading errors
     img.onerror = (err) => {
-        console.error('Error loading SVG as image:', err);
+        console.error('Failed to render SVG as PNG:', err);
     };
 
-    // Set the image source to the SVG data
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    // Set the image source to the SVG blob URL
+    img.src = url;
         }
         
     </script>
