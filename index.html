@@ -111,28 +111,43 @@
 
         // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
         function downloadPNG() {
-    const svgElement = document.getElementById('svgLabel');
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const svgElement = document.getElementById('svgLabel'); // Get the SVG element
+    const canvas = document.createElement('canvas'); // Create a canvas
+    const ctx = canvas.getContext('2d'); // Get the canvas context
 
-    // Set canvas dimensions to match the SVG's viewBox
-    canvas.width = svgElement.viewBox.baseVal.width;
-    canvas.height = svgElement.viewBox.baseVal.height;
+    // Set canvas dimensions to match the SVG
+    canvas.width = svgElement.viewBox.baseVal.width || 283;
+    canvas.height = svgElement.viewBox.baseVal.height || 132;
 
-    // Render the SVG onto the canvas using canvg
-    canvg(canvas, new XMLSerializer().serializeToString(svgElement));
+    // Use an XML serializer to convert the SVG into a string
+    const svgData = new XMLSerializer().serializeToString(svgElement);
 
-    // Create a PNG image from the canvas
-    const pngDataUrl = canvas.toDataURL('image/png');
+    // Create an image to draw the SVG onto the canvas
+    const img = new Image();
 
-    // Create a link element for downloading the image
-    const link = document.createElement('a');
-    link.href = pngDataUrl;
-    link.download = 'etiket.png';
+    // When the image loads, draw it on the canvas
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0); // Draw the image on the canvas
 
-    // Trigger the download using Blob API
-    const event = new MouseEvent('click');
-    link.dispatchEvent(event);
+        // Convert the canvas to a PNG data URL
+        const pngDataUrl = canvas.toDataURL('image/png');
+
+        // Create a download link for the PNG
+        const link = document.createElement('a');
+        link.href = pngDataUrl;
+        link.download = 'etiket.png';
+
+        // Trigger the download
+        link.click();
+    };
+
+    // Handle image loading errors
+    img.onerror = (err) => {
+        console.error('Error loading SVG as image:', err);
+    };
+
+    // Set the image source to the SVG data
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
         }
         
     </script>
