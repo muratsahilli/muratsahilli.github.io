@@ -95,28 +95,48 @@
             document.getElementById('svgPrice').textContent = price;
         }
 
-        // Görsel İndirme
+        // Yüksek Çözünürlükte Görsel İndirme
         function downloadImage() {
             const svgContainer = document.getElementById('svg-container');
-            domtoimage.toPng(svgContainer)
-                .then(function (dataUrl) {
-                    const link = document.createElement('a');
-                    link.download = 'etiket.png';
-                    link.href = dataUrl;
-                    link.click();
-                });
+            
+            // Yüksek çözünürlük için render
+            const scale = 2; // Çözünürlük oranı
+            domtoimage.toPng(svgContainer, { 
+                width: 283 * scale, 
+                height: 132 * scale,
+                style: {
+                    transform: 'scale(' + scale + ')',
+                    transformOrigin: 'top left'
+                }
+            })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'etiket.png';
+                link.href = dataUrl;
+                link.click();
+            });
         }
 
         // PDF İndirme
         function downloadPDF() {
             const svgContainer = document.getElementById('svg-container');
-            domtoimage.toPng(svgContainer)
-                .then(function (dataUrl) {
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF();
-                    pdf.addImage(dataUrl, 'PNG', 10, 10, 75, 35);
-                    pdf.save('etiket.pdf');
-                });
+            
+            // Yüksek çözünürlük için render
+            const scale = 2; // Çözünürlük oranı
+            domtoimage.toPng(svgContainer, { 
+                width: 283 * scale, 
+                height: 132 * scale,
+                style: {
+                    transform: 'scale(' + scale + ')',
+                    transformOrigin: 'top left'
+                }
+            })
+            .then(function (dataUrl) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                pdf.addImage(dataUrl, 'PNG', 10, 10, 75, 35);
+                pdf.save('etiket.pdf');
+            });
         }
     </script>
 </body>
