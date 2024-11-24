@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>75x35mm Etiket Üretici</title>
+    <title>Etiket Üretici</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvg@3.0.0-beta.3/dist/canvg.min.js"></script>
     <style>
@@ -20,8 +20,14 @@
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
+            gap: 10px;
         }
-        input {
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        input, select {
             margin: 5px;
             padding: 8px;
             font-size: 14px;
@@ -47,114 +53,176 @@
             margin-top: 20px;
             padding: 10px;
             background-color: white;
-        }
-        #svg-container svg {
-            width: 283px;
-            height: 132px;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <h1>75x35mm Etiket Üretici</h1>
+    <h1>Etiket Üretici</h1>
     <div class="container">
+        <div class="input-group">
+            <label for="labelSize">Etiket Boyutu:</label>
+            <select id="labelSize">
+                <option value="small">75x35mm</option>
+                <option value="large">100x50mm</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="textColor">Yazı Rengi:</label>
+            <input type="color" id="textColor" value="#2F4F4F">
+        </div>
         <input type="text" id="productName" placeholder="Ürün Adı" />
         <input type="text" id="productWeight" placeholder="Gramaj" />
         <input type="text" id="price" placeholder="Fiyat" />
-        <button onclick="updateSVG()">SVG'yi Güncelle</button>
-        <button onclick="downloadPDF()">PDF İndir</button>
-        <button onclick="downloadPNG()">PNG İndir</button>
+        <div>
+            <button onclick="downloadPDF()">PDF İndir</button>
+            <button onclick="downloadPNG()">PNG İndir</button>
+        </div>
     </div>
     <div id="svg-container">
-        <!-- SVG Alanı -->
-        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" width="283" height="132" viewBox="0 0 283 132">
-            <!-- Arka Plan -->
-            <rect width="283" height="132" fill="white" />
-            <!-- Üst Kısım: Ürün Adı -->
-            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start" fill="#2F4F4F">
+        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283 132">
+            <rect width="100%" height="100%" fill="white" />
+            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start">
                 Ürün Adı
             </text>
-            <!-- Alt Kısım: Gramaj -->
-            <text id="svgProductWeight" x="10" y="70" font-family="Helvetica" font-size="12" text-anchor="start" fill="#2F4F4F">
+            <text id="svgProductWeight" x="10" y="70" font-family="Helvetica" font-size="12" text-anchor="start">
                 500g
             </text>
-            <!-- Alt Kısım: Fiyat -->
-            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
+            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start">
                 10.00
             </text>
         </svg>
     </div>
     <script>
-        // SVG Güncelleme
+        const sizeConfigs = {
+            small: {
+                width: 283, // 75mm
+                height: 132, // 35mm
+                productNameSize: 18,
+                weightSize: 12,
+                priceSize: 22,
+                productNameY: 40,
+                weightY: 70,
+                priceY: 105
+            },
+            large: {
+                width: 377, // 100mm
+                height: 189, // 50mm
+                productNameSize: 24,
+                weightSize: 16,
+                priceSize: 30,
+                productNameY: 60,
+                weightY: 100,
+                priceY: 150
+            }
+        };
+
+        // SVG boyutunu güncelle
+        function updateSVGSize() {
+            const size = document.getElementById('labelSize').value;
+            const config = sizeConfigs[size];
+            const svgElement = document.getElementById('svgLabel');
+            const container = document.getElementById('svg-container');
+            
+            // SVG boyutlarını güncelle
+            svgElement.setAttribute('width', config.width);
+            svgElement.setAttribute('height', config.height);
+            svgElement.setAttribute('viewBox', `0 0 ${config.width} ${config.height}`);
+            
+            // Container boyutlarını güncelle
+            container.style.width = `${config.width}px`;
+            
+            // Font boyutlarını güncelle
+            const productName = document.getElementById('svgProductName');
+            const productWeight = document.getElementById('svgProductWeight');
+            const price = document.getElementById('svgPrice');
+            
+            productName.setAttribute('font-size', config.productNameSize);
+            productWeight.setAttribute('font-size', config.weightSize);
+            price.setAttribute('font-size', config.priceSize);
+            
+            // Y pozisyonlarını güncelle
+            productName.setAttribute('y', config.productNameY);
+            productWeight.setAttribute('y', config.weightY);
+            price.setAttribute('y', config.priceY);
+            
+            updateSVG(); // İçeriği de güncelle
+        }
+
+        // SVG içeriğini güncelle
         function updateSVG() {
             const productName = document.getElementById('productName').value || "Ürün Adı";
             const productWeight = document.getElementById('productWeight').value || "500g";
             const price = document.getElementById('price').value || "10.00";
+            const textColor = document.getElementById('textColor').value;
 
-            document.getElementById('svgProductName').textContent = productName;
-            document.getElementById('svgProductWeight').textContent = productWeight;
-            document.getElementById('svgPrice').textContent = price;
+            const elements = ['svgProductName', 'svgProductWeight', 'svgPrice'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                element.textContent = id === 'svgProductName' ? productName :
+                                    id === 'svgProductWeight' ? productWeight : price;
+                element.setAttribute('fill', textColor);
+            });
         }
 
-        // PDF İndirme (html2pdf.js Kullanarak)
+        // Event listener'ları
+        document.getElementById('labelSize').addEventListener('change', updateSVGSize);
+        document.getElementById('textColor').addEventListener('input', updateSVG);
+        document.getElementById('productName').addEventListener('input', updateSVG);
+        document.getElementById('productWeight').addEventListener('input', updateSVG);
+        document.getElementById('price').addEventListener('input', updateSVG);
+
+        // PDF İndirme
         function downloadPDF() {
-            const svgElement = document.getElementById('svgLabel'); // SVG elemanını alıyoruz
+            const svgElement = document.getElementById('svgLabel');
             const opt = {
-                margin:       0,
-                filename:     'etiket.pdf',
-                image:        { type: 'png', quality: 1 },
-                html2canvas:  { scale: 4 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 0,
+                filename: 'etiket.pdf',
+                image: { type: 'png', quality: 1 },
+                html2canvas: { scale: 4 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            // svg'yi doğrudan PDF'e dönüştürme
             html2pdf().from(svgElement).set(opt).save();
         }
 
-        // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
+        // PNG İndirme
         function downloadPNG() {
-    const svgElement = document.getElementById('svgLabel'); // Get the SVG element
-    const svgData = new XMLSerializer().serializeToString(svgElement); // Serialize the SVG
+            const svgElement = document.getElementById('svgLabel');
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
 
-    // Create a blob from the SVG
-    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                const scaleFactor = 15;
+                const canvas = document.createElement('canvas');
+                canvas.width = svgElement.width.baseVal.value * scaleFactor;
+                canvas.height = svgElement.height.baseVal.value * scaleFactor;
 
-    // Create an image element and load the SVG blob
-    const img = new Image();
-    img.onload = () => {
-        // Create a canvas with a higher resolution (e.g., 4x)
-        const scaleFactor = 10; // Adjust this to increase resolution
-        const canvas = document.createElement('canvas');
-        canvas.width = (svgElement.viewBox.baseVal.width || 283) * scaleFactor;
-        canvas.height = (svgElement.viewBox.baseVal.height || 132) * scaleFactor;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scaleFactor, scaleFactor);
+                ctx.drawImage(img, 0, 0);
 
-        const ctx = canvas.getContext('2d');
-        ctx.scale(scaleFactor, scaleFactor); // Scale the canvas
+                canvas.toBlob((blob) => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'etiket.png';
+                    link.click();
 
-        // Draw the SVG image onto the high-resolution canvas
-        ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    URL.revokeObjectURL(link.href);
+                }, 'image/png');
+            };
 
-        // Convert the canvas to a PNG data URL
-        canvas.toBlob((blob) => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'etiket.png';
-            link.click();
+            img.onerror = (err) => {
+                console.error('Failed to render SVG as PNG:', err);
+            };
 
-            // Cleanup object URLs
-            URL.revokeObjectURL(url);
-            URL.revokeObjectURL(link.href);
-        }, 'image/png');
-    };
-
-    // Handle image loading errors
-    img.onerror = (err) => {
-        console.error('Failed to render SVG as PNG:', err);
-    };
-
-    // Set the image source to the SVG blob URL
-    img.src = url;
+            img.src = url;
         }
-        
+
+        // Sayfa yüklendiğinde başlangıç boyutunu ayarla
+        window.onload = updateSVGSize;
     </script>
 </body>
 </html>
