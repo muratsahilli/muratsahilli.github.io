@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>75x35mm Etiket Üretici</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvg@3.0.0-beta.3/dist/canvg.min.js"></script>
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
@@ -61,6 +62,7 @@
         <input type="text" id="price" placeholder="Fiyat" />
         <button onclick="updateSVG()">SVG'yi Güncelle</button>
         <button onclick="downloadPDF()">PDF İndir</button>
+        <button onclick="downloadPNG()">PNG İndir</button>
     </div>
     <div id="svg-container">
         <!-- SVG Alanı -->
@@ -105,6 +107,29 @@
             };
             // svg'yi doğrudan PDF'e dönüştürme
             html2pdf().from(svgElement).set(opt).save();
+        }
+
+        // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
+        function downloadPNG() {
+            const svgElement = document.getElementById('svgLabel');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Canvas boyutlarını SVG'nin boyutlarına göre ayarlıyoruz
+            canvas.width = svgElement.viewBox.baseVal.width;
+            canvas.height = svgElement.viewBox.baseVal.height;
+
+            // Canvg kütüphanesini kullanarak SVG'yi canvas'a çiziyoruz
+            canvg(canvas, new XMLSerializer().serializeToString(svgElement));
+
+            // Canvas'tan PNG oluşturuyoruz
+            const pngDataUrl = canvas.toDataURL('image/png');
+
+            // PNG'yi indiriyoruz
+            const link = document.createElement('a');
+            link.href = pngDataUrl;
+            link.download = 'etiket.png';
+            link.click();
         }
     </script>
 </body>
