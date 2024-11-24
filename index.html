@@ -3,125 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Label Generator</title>
+    <title>75x35mm Etiket Üretici</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvg@3.0.0-beta.3/dist/canvg.min.js"></script>
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin: 20px;
-            padding: 0;
+            background-color: #f4f4f4;
         }
-
-        .controls {
-            margin-bottom: 20px;
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
         }
-
-        #sizeToggle {
-            margin-left: 10px;
-            transform: scale(1.5);
-            cursor: pointer;
+        input {
+            margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-
-        #sizeLabel {
-            margin-left: 10px;
-            font-weight: bold;
-        }
-
         button {
-            background-color: #4CAF50;
+            margin: 10px;
+            padding: 10px;
+            font-size: 14px;
+            background-color: #2F4F4F;
             color: white;
-            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
         }
-
         button:hover {
-            background-color: #45a049;
+            background-color: #3A5F5F;
+        }
+        #svg-container {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: white;
+        }
+        #svg-container svg {
+            width: 283px;
+            height: 132px;
         }
     </style>
 </head>
 <body>
-    <div class="controls">
-        <label for="sizeToggle">Label Size:</label>
-        <input type="checkbox" id="sizeToggle">
-        <span id="sizeLabel">Small (75x35 mm)</span>
+    <h1>75x35mm Etiket Üretici</h1>
+    <div class="container">
+        <input type="text" id="productName" placeholder="Ürün Adı" />
+        <input type="text" id="productWeight" placeholder="Gramaj" />
+        <input type="text" id="price" placeholder="Fiyat" />
+        <button onclick="updateSVG()">SVG'yi Güncelle</button>
+        <button onclick="downloadPDF()">PDF İndir</button>
+        <button onclick="downloadPNG()">PNG İndir</button>
     </div>
-
-    <!-- SVG Label -->
-    <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283 132" width="283" height="132">
-        <rect width="100%" height="100%" fill="white" />
-        <text x="10" y="40" fill="#333333" font-family="Helvetica" font-size="24" font-weight="bold">Product Name</text>
-        <text x="10" y="70" fill="#333333" font-family="Helvetica" font-size="14">250g</text>
-        <text x="10" y="110" fill="#333333" font-family="Helvetica" font-size="32" font-weight="bold">$5.99</text>
-    </svg>
-
-    <button onclick="downloadPNG()">Download PNG</button>
-
+    <div id="svg-container">
+        <!-- SVG Alanı -->
+        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" width="283" height="132" viewBox="0 0 283 132">
+            <!-- Arka Plan -->
+            <rect width="283" height="132" fill="white" />
+            <!-- Üst Kısım: Ürün Adı -->
+            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start" fill="#2F4F4F">
+                Ürün Adı
+            </text>
+            <!-- Alt Kısım: Gramaj -->
+            <text id="svgProductWeight" x="10" y="70" font-family="Helvetica" font-size="12" text-anchor="start" fill="#2F4F4F">
+                500g
+            </text>
+            <!-- Alt Kısım: Fiyat -->
+            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="start" fill="#2F4F4F">
+                10.00
+            </text>
+        </svg>
+    </div>
     <script>
-        // Toggle size between Small (75x35 mm) and Large (4x2 inch)
-        document.getElementById('sizeToggle').addEventListener('change', function () {
-            const svgLabel = document.getElementById('svgLabel');
-            const sizeLabel = document.getElementById('sizeLabel');
+        // SVG Güncelleme
+        function updateSVG() {
+            const productName = document.getElementById('productName').value || "Ürün Adı";
+            const productWeight = document.getElementById('productWeight').value || "500g";
+            const price = document.getElementById('price').value || "10.00";
 
-            if (this.checked) {
-                // Set to 4x2 inch (large label)
-                svgLabel.setAttribute('viewBox', '0 0 384 192'); // 4x2 inches in 96 DPI
-                svgLabel.setAttribute('width', '384'); // Width for 4 inches
-                svgLabel.setAttribute('height', '192'); // Height for 2 inches
-                sizeLabel.textContent = 'Large (4x2 inch)';
-            } else {
-                // Set to 75x35 mm (small label)
-                svgLabel.setAttribute('viewBox', '0 0 283 132'); // 75x35 mm in pixels at 96 DPI
-                svgLabel.setAttribute('width', '283'); // Width for 75 mm
-                svgLabel.setAttribute('height', '132'); // Height for 35 mm
-                sizeLabel.textContent = 'Small (75x35 mm)';
-            }
-        });
-
-        // Download the SVG as a high-quality PNG
-        function downloadPNG() {
-            const svgElement = document.getElementById('svgLabel'); // Get the SVG element
-            const svgData = new XMLSerializer().serializeToString(svgElement); // Serialize the SVG
-
-            // Create a blob from the SVG
-            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-
-            // Create an image element and load the SVG blob
-            const img = new Image();
-            img.onload = () => {
-                // Create a canvas with a higher resolution (e.g., 4x)
-                const scaleFactor = 14; // Adjust for higher resolution
-                const canvas = document.createElement('canvas');
-                canvas.width = (svgElement.viewBox.baseVal.width || 283) * scaleFactor;
-                canvas.height = (svgElement.viewBox.baseVal.height || 132) * scaleFactor;
-
-                const ctx = canvas.getContext('2d');
-                ctx.scale(scaleFactor, scaleFactor); // Scale the canvas
-
-                // Draw the SVG onto the canvas
-                ctx.drawImage(img, 0, 0);
-
-                // Convert the canvas to a PNG
-                canvas.toBlob((blob) => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'etiket.png';
-                    link.click();
-
-                    // Cleanup object URLs
-                    URL.revokeObjectURL(url);
-                    URL.revokeObjectURL(link.href);
-                }, 'image/png');
-            };
-
-            img.onerror = (err) => {
-                console.error('Failed to render SVG as PNG:', err);
-            };
-
-            img.src = url; // Set the image source to the SVG blob URL
+            document.getElementById('svgProductName').textContent = productName;
+            document.getElementById('svgProductWeight').textContent = productWeight;
+            document.getElementById('svgPrice').textContent = price;
         }
+
+        // PDF İndirme (html2pdf.js Kullanarak)
+        function downloadPDF() {
+            const svgElement = document.getElementById('svgLabel'); // SVG elemanını alıyoruz
+            const opt = {
+                margin:       0,
+                filename:     'etiket.pdf',
+                image:        { type: 'png', quality: 1 },
+                html2canvas:  { scale: 4 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            // svg'yi doğrudan PDF'e dönüştürme
+            html2pdf().from(svgElement).set(opt).save();
+        }
+
+        // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
+        function downloadPNG() {
+    const svgElement = document.getElementById('svgLabel'); // Get the SVG element
+    const svgData = new XMLSerializer().serializeToString(svgElement); // Serialize the SVG
+
+    // Create a blob from the SVG
+    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    // Create an image element and load the SVG blob
+    const img = new Image();
+    img.onload = () => {
+        // Create a canvas with a higher resolution (e.g., 4x)
+        const scaleFactor = 10; // Adjust this to increase resolution
+        const canvas = document.createElement('canvas');
+        canvas.width = (svgElement.viewBox.baseVal.width || 283) * scaleFactor;
+        canvas.height = (svgElement.viewBox.baseVal.height || 132) * scaleFactor;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scaleFactor, scaleFactor); // Scale the canvas
+
+        // Draw the SVG image onto the high-resolution canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Convert the canvas to a PNG data URL
+        canvas.toBlob((blob) => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'etiket.png';
+            link.click();
+
+            // Cleanup object URLs
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(link.href);
+        }, 'image/png');
+    };
+
+    // Handle image loading errors
+    img.onerror = (err) => {
+        console.error('Failed to render SVG as PNG:', err);
+    };
+
+    // Set the image source to the SVG blob URL
+    img.src = url;
+        }
+        
     </script>
 </body>
 </html>
