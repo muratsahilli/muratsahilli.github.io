@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>75x35mm Etiket Üretici</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPDF/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
@@ -93,21 +93,18 @@
             document.getElementById('svgPrice').textContent = price;
         }
 
-        // PDF İndirme (SVG'yi Doğrudan PDF'ye Aktarma)
+        // PDF İndirme (html2pdf.js Kullanarak)
         function downloadPDF() {
             const svgElement = document.getElementById('svgLabel'); // SVG elemanını alıyoruz
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            
-            // SVG'yi PDF'e ekle
-            pdf.svg(svgElement, {
-                x: 10,
-                y: 10,
-                width: 75,  // PDF boyutlarına uygun genişlik
-                height: 35  // PDF boyutlarına uygun yükseklik
-            }).then(() => {
-                pdf.save('etiket.pdf');
-            });
+            const opt = {
+                margin:       0,
+                filename:     'etiket.pdf',
+                image:        { type: 'png', quality: 1 },
+                html2canvas:  { scale: 4 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            // svg'yi doğrudan PDF'e dönüştürme
+            html2pdf().from(svgElement).set(opt).save();
         }
     </script>
 </body>
