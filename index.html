@@ -111,28 +111,30 @@
 
         // PNG İndirme (SVG'yi Canvas ile PNG'ye dönüştürme)
         function downloadPNG() {
-    const svgElement = document.getElementById('svgLabel'); // The SVG to convert
+    const svgElement = document.getElementById('svgLabel'); // Get the SVG element
     const svgData = new XMLSerializer().serializeToString(svgElement); // Serialize the SVG
 
     // Create a blob from the SVG
     const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-
-    // Create an object URL for the blob
     const url = URL.createObjectURL(blob);
 
     // Create an image element and load the SVG blob
     const img = new Image();
     img.onload = () => {
-        const canvas = document.createElement('canvas'); // Create a canvas
-        canvas.width = svgElement.viewBox.baseVal.width || 283; // Match the SVG dimensions
-        canvas.height = svgElement.viewBox.baseVal.height || 132;
+        // Create a canvas with a higher resolution (e.g., 4x)
+        const scaleFactor = 10; // Adjust this to increase resolution
+        const canvas = document.createElement('canvas');
+        canvas.width = (svgElement.viewBox.baseVal.width || 283) * scaleFactor;
+        canvas.height = (svgElement.viewBox.baseVal.height || 132) * scaleFactor;
 
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0); // Draw the image onto the canvas
+        ctx.scale(scaleFactor, scaleFactor); // Scale the canvas
 
-        // Convert the canvas content to a PNG data URL
+        // Draw the SVG image onto the high-resolution canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Convert the canvas to a PNG data URL
         canvas.toBlob((blob) => {
-            // Create a download link for the PNG
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'etiket.png';
