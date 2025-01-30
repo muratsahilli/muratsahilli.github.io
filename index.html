@@ -2,227 +2,278 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etiket Üretici</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvg@3.0.0-beta.3/dist/canvg.min.js"></script>
+    <title>Shelf Price Tag Designer</title>
+    <link href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace/shoelace.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #4f46e5;
+        }
+
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+            background: #f8fafc;
         }
+
         .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        input, select {
-            margin: 5px;
-            padding: 8px;
-            font-size: 14px;
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+
+        .preview-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 1rem;
         }
-        button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 14px;
-            background-color: #2F4F4F;
-            color: white;
-            border: none;
-            border-radius: 5px;
+
+        .control-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .template-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .template-thumbnail {
+            border: 2px solid transparent;
+            border-radius: 8px;
             cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.2s;
         }
-        button:hover {
-            background-color: #3A5F5F;
+
+        .template-thumbnail.selected {
+            border-color: var(--primary-color);
+            background: #eff6ff;
         }
-        #svg-container {
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: white;
-            transition: all 0.3s ease;
+
+        #previewSvg {
+            width: 100%;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .download-options {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
     </style>
 </head>
 <body>
-    <h1>Etiket Üretici</h1>
     <div class="container">
-        <div class="input-group">
-            <label for="labelSize">Etiket Boyutu:</label>
-            <select id="labelSize">
-                <option value="small">75x35mm</option>
-                <option value="large">100x50mm</option>
-            </select>
+        <div class="controls">
+            <div class="control-group">
+                <h3>Product Information</h3>
+                <sl-input label="Product Name" id="productName" placeholder="Enter product name"></sl-input>
+                <sl-input type="number" label="Price" id="productPrice" step="0.01"></sl-input>
+                <sl-input label="Barcode" id="barcode"></sl-input>
+            </div>
+
+            <div class="control-group">
+                <h3>Display Options</h3>
+                <div class="two-column">
+                    <sl-select label="Size" id="sizeSelect">
+                        <sl-option value="80x50">Small (80x50mm)</sl-option>
+                        <sl-option value="100x60" selected>Medium (100x60mm)</sl-option>
+                        <sl-option value="120x80">Large (120x80mm)</sl-option>
+                    </sl-select>
+                    <sl-select label="Orientation" id="orientation">
+                        <sl-option value="horizontal">Horizontal</sl-option>
+                        <sl-option value="vertical">Vertical</sl-option>
+                    </sl-select>
+                </div>
+                
+                <sl-checkbox id="showWeight">Show Weight</sl-checkbox>
+                <sl-checkbox id="showPricePerKg">Show Price/kg</sl-checkbox>
+                <sl-checkbox id="showSale">Sale Tag</sl-checkbox>
+            </div>
+
+            <div class="control-group">
+                <h3>Templates</h3>
+                <div class="template-thumbnails">
+                    <div class="template-thumbnail selected" data-style="1" onclick="selectStyle(1)">
+                        <svg width="80" height="50" viewBox="0 0 100 60">...</svg>
+                    </div>
+                    <div class="template-thumbnail" data-style="2" onclick="selectStyle(2)">
+                        <svg width="80" height="50" viewBox="0 0 100 60">...</svg>
+                    </div>
+                    <!-- Add more template thumbnails -->
+                </div>
+            </div>
+
+            <div class="download-options">
+                <sl-button variant="primary" onclick="downloadDesign()">
+                    <sl-icon name="download"></sl-icon>
+                    Download Single
+                </sl-button>
+                
+                <sl-button onclick="handleBulkUpload()">
+                    <sl-icon name="upload"></sl-icon>
+                    Bulk Upload Excel
+                </sl-button>
+                
+                <sl-input type="file" id="excelUpload" accept=".xlsx,.csv" style="display: none;"></sl-input>
+            </div>
         </div>
-        <div class="input-group">
-            <label for="textColor">Yazı Rengi:</label>
-            <input type="color" id="textColor" value="#2F4F4F">
-        </div>
-        <input type="text" id="productName" placeholder="Ürün Adı" />
-        <input type="text" id="productWeight" placeholder="Gramaj" />
-        <input type="text" id="price" placeholder="Fiyat" />
-        <div>
-            <button onclick="downloadPDF()">PDF İndir</button>
-            <button onclick="downloadPNG()">PNG İndir</button>
+
+        <div class="preview-container">
+            <div id="previewWrapper"></div>
+            <div class="preview-controls">
+                <sl-select label="File Format" id="fileFormat">
+                    <sl-option value="svg">SVG</sl-option>
+                    <sl-option value="png">PNG</sl-option>
+                    <sl-option value="pdf">PDF</sl-option>
+                </sl-select>
+                
+                <sl-button-group>
+                    <sl-button onclick="zoomOut()">-</sl-button>
+                    <sl-button onclick="resetZoom()">100%</sl-button>
+                    <sl-button onclick="zoomIn()">+</sl-button>
+                </sl-button-group>
+            </div>
         </div>
     </div>
-    <div id="svg-container">
-        <svg id="svgLabel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283 132">
-            <rect width="100%" height="100%" fill="white" />
-            <text id="svgProductName" x="10" y="40" font-family="Helvetica" font-size="18" text-anchor="start">
-                Ürün Adı
-            </text>
-            <text id="svgProductWeight" x="10" y="70" font-family="Helvetica" font-size="12" text-anchor="start">
-                500g
-            </text>
-            <text id="svgPrice" x="10" y="105" font-family="Helvetica" font-size="40" font-weight="bold" text-anchor="start">
-                10.00
-            </text>
-        </svg>
-    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace/shoelace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <script>
-        const sizeConfigs = {
-            small: {
-                width: 283, // 75mm
-                height: 132, // 35mm
-                productNameSize: 18,
-                weightSize: 12,
-                priceSize: 40,
-                productNameY: 40,
-                weightY: 70,
-                priceY: 105
-            },
-            large: {
-                width: 377, // 100mm
-                height: 189, // 50mm
-                productNameSize: 24,
-                weightSize: 16,
-                priceSize: 30,
-                productNameY: 60,
-                weightY: 100,
-                priceY: 150
-            }
+        let currentDesign = {
+            style: 1,
+            size: '100x60',
+            orientation: 'horizontal',
+            zoom: 1
         };
 
-        // SVG boyutunu güncelle
-        function updateSVGSize() {
-            const size = document.getElementById('labelSize').value;
-            const config = sizeConfigs[size];
-            const svgElement = document.getElementById('svgLabel');
-            const container = document.getElementById('svg-container');
+        // Initialize with default values
+        document.querySelectorAll('sl-input, sl-select, sl-checkbox').forEach(el => {
+            el.addEventListener('sl-change', updatePreview);
+        });
+
+        function updatePreview() {
+            const design = {
+                ...currentDesign,
+                productName: document.getElementById('productName').value,
+                price: document.getElementById('productPrice').value,
+                barcode: document.getElementById('barcode').value,
+                showWeight: document.getElementById('showWeight').checked,
+                showPricePerKg: document.getElementById('showPricePerKg').checked,
+                showSale: document.getElementById('showSale').checked,
+                size: document.getElementById('sizeSelect').value,
+                orientation: document.getElementById('orientation').value
+            };
+
+            const svg = generateSVG(design);
+            document.getElementById('previewWrapper').innerHTML = svg;
             
-            // SVG boyutlarını güncelle
-            svgElement.setAttribute('width', config.width);
-            svgElement.setAttribute('height', config.height);
-            svgElement.setAttribute('viewBox', `0 0 ${config.width} ${config.height}`);
-            
-            // Container boyutlarını güncelle
-            container.style.width = `${config.width}px`;
-            
-            // Font boyutlarını güncelle
-            const productName = document.getElementById('svgProductName');
-            const productWeight = document.getElementById('svgProductWeight');
-            const price = document.getElementById('svgPrice');
-            
-            productName.setAttribute('font-size', config.productNameSize);
-            productWeight.setAttribute('font-size', config.weightSize);
-            price.setAttribute('font-size', config.priceSize);
-            
-            // Y pozisyonlarını güncelle
-            productName.setAttribute('y', config.productNameY);
-            productWeight.setAttribute('y', config.weightY);
-            price.setAttribute('y', config.priceY);
-            
-            updateSVG(); // İçeriği de güncelle
+            // Generate barcode if exists
+            if(design.barcode) {
+                JsBarcode("#barcode-img", design.barcode, {
+                    format: "CODE128",
+                    displayValue: false,
+                    height: 20
+                });
+            }
         }
 
-        // SVG içeriğini güncelle
-        function updateSVG() {
-            const productName = document.getElementById('productName').value || "Ürün Adı";
-            const productWeight = document.getElementById('productWeight').value || "500g";
-            const price = document.getElementById('price').value || "10.00";
-            const textColor = document.getElementById('textColor').value;
+        function generateSVG(design) {
+            const [width, height] = design.size.split('x').map(Number);
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     width="${width}mm" 
+                     height="${height}mm"
+                     viewBox="0 0 ${width} ${height}"
+                     style="transform: scale(${currentDesign.zoom})">
+                    ${this[`template${design.style}`](design)}
+                </svg>`;
+        }
 
-            const elements = ['svgProductName', 'svgProductWeight', 'svgPrice'];
-            elements.forEach(id => {
-                const element = document.getElementById(id);
-                element.textContent = id === 'svgProductName' ? productName :
-                                    id === 'svgProductWeight' ? productWeight : price;
-                element.setAttribute('fill', textColor);
+        function template1(design) {
+            return `
+                <rect width="100%" height="100%" fill="#fff" rx="3"/>
+                <text x="50%" y="20%" dominant-baseline="middle" text-anchor="middle"
+                      font-size="4" font-weight="bold">${design.productName}</text>
+                ${design.showSale ? this.saleBadge(design) : ''}
+                <text x="50%" y="50%" font-size="8" fill="#2563eb"
+                      text-anchor="middle">$${design.price}</text>
+                <g id="barcode-container" transform="translate(10, 70)">
+                    <image id="barcode-img"/>
+                </g>
+            `;
+        }
+
+        function saleBadge(design) {
+            return `
+                <rect x="5" y="5" width="20" height="20" fill="#dc2626" rx="2"/>
+                <text x="15" y="15" fill="white" font-size="3" 
+                      text-anchor="middle" dominant-baseline="middle">SALE</text>
+            `;
+        }
+
+        async function handleBulkUpload() {
+            const file = document.getElementById('excelUpload').files[0];
+            const data = await readExcel(file);
+            const zip = new JSZip();
+            
+            data.forEach((row, index) => {
+                const svg = generateSVG({...currentDesign, ...row});
+                zip.file(`price-tag-${index}.svg`, svg);
+            });
+
+            zip.generateAsync({type: "blob"}).then(content => {
+                saveAs(content, "price-tags.zip");
             });
         }
 
-        // Event listener'ları
-        document.getElementById('labelSize').addEventListener('change', updateSVGSize);
-        document.getElementById('textColor').addEventListener('input', updateSVG);
-        document.getElementById('productName').addEventListener('input', updateSVG);
-        document.getElementById('productWeight').addEventListener('input', updateSVG);
-        document.getElementById('price').addEventListener('input', updateSVG);
-
-        // PDF İndirme
-        function downloadPDF() {
-            const svgElement = document.getElementById('svgLabel');
-            const opt = {
-                margin: 0,
-                filename: 'etiket.pdf',
-                image: { type: 'png', quality: 1 },
-                html2canvas: { scale: 4 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().from(svgElement).set(opt).save();
+        async function readExcel(file) {
+            const reader = new FileReader();
+            return new Promise((resolve) => {
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    resolve(XLSX.utils.sheet_to_json(sheet));
+                };
+                reader.readAsArrayBuffer(file);
+            });
         }
 
-        // PNG İndirme
-        function downloadPNG() {
-            const svgElement = document.getElementById('svgLabel');
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+        function zoomIn() { currentDesign.zoom *= 1.1; updatePreview(); }
+        function zoomOut() { currentDesign.zoom *= 0.9; updatePreview(); }
+        function resetZoom() { currentDesign.zoom = 1; updatePreview(); }
 
-            const img = new Image();
-            img.onload = () => {
-                const scaleFactor = 15;
-                const canvas = document.createElement('canvas');
-                canvas.width = svgElement.width.baseVal.value * scaleFactor;
-                canvas.height = svgElement.height.baseVal.value * scaleFactor;
-
-                const ctx = canvas.getContext('2d');
-                ctx.scale(scaleFactor, scaleFactor);
-                ctx.drawImage(img, 0, 0);
-
-                canvas.toBlob((blob) => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'etiket.png';
-                    link.click();
-
-                    URL.revokeObjectURL(url);
-                    URL.revokeObjectURL(link.href);
-                }, 'image/png');
-            };
-
-            img.onerror = (err) => {
-                console.error('Failed to render SVG as PNG:', err);
-            };
-
-            img.src = url;
-        }
-
-        // Sayfa yüklendiğinde başlangıç boyutunu ayarla
-        window.onload = updateSVGSize;
+        // Initial preview
+        updatePreview();
     </script>
 </body>
 </html>
