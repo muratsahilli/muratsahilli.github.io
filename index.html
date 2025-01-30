@@ -1,276 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Shelf Price Tag Designer</title>
-    <link href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace/shoelace.css" rel="stylesheet">
+    <title>Price Tag Designer</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #4f46e5;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            padding: 2rem;
-            background: #f8fafc;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .controls {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .preview-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 1rem;
-        }
-
-        .control-group {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .template-thumbnails {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-        }
-
-        .template-thumbnail {
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .template-thumbnail.selected {
-            border-color: var(--primary-color);
-            background: #eff6ff;
-        }
-
-        #previewSvg {
-            width: 100%;
-            height: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .download-options {
-            display: grid;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { display: flex; gap: 20px; }
+        .controls { width: 300px; }
+        .preview { flex: 1; border: 1px solid #ccc; padding: 20px; }
+        .template-select { display: flex; gap: 10px; margin: 10px 0; }
+        .template-option { width: 80px; cursor: pointer; border: 2px solid #ddd; }
+        .selected { border-color: #0066cc; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="controls">
-            <div class="control-group">
-                <h3>Product Information</h3>
-                <sl-input label="Product Name" id="productName" placeholder="Enter product name"></sl-input>
-                <sl-input type="number" label="Price" id="productPrice" step="0.01"></sl-input>
-                <sl-input label="Barcode" id="barcode"></sl-input>
-            </div>
-
-            <div class="control-group">
-                <h3>Display Options</h3>
-                <div class="two-column">
-                    <sl-select label="Size" id="sizeSelect">
-                        <sl-option value="80x50">Small (80x50mm)</sl-option>
-                        <sl-option value="100x60" selected>Medium (100x60mm)</sl-option>
-                        <sl-option value="120x80">Large (120x80mm)</sl-option>
-                    </sl-select>
-                    <sl-select label="Orientation" id="orientation">
-                        <sl-option value="horizontal">Horizontal</sl-option>
-                        <sl-option value="vertical">Vertical</sl-option>
-                    </sl-select>
+            <h3>Design Options</h3>
+            
+            <div class="template-select">
+                <div class="template-option selected" data-style="1" onclick="selectStyle(1)">
+                    <svg width="80" height="50" viewBox="0 0 100 60">
+                        <rect width="100%" height="100%" fill="#fff" stroke="#ccc"/>
+                    </svg>
                 </div>
-                
-                <sl-checkbox id="showWeight">Show Weight</sl-checkbox>
-                <sl-checkbox id="showPricePerKg">Show Price/kg</sl-checkbox>
-                <sl-checkbox id="showSale">Sale Tag</sl-checkbox>
-            </div>
-
-            <div class="control-group">
-                <h3>Templates</h3>
-                <div class="template-thumbnails">
-                    <div class="template-thumbnail selected" data-style="1" onclick="selectStyle(1)">
-                        <svg width="80" height="50" viewBox="0 0 100 60">...</svg>
-                    </div>
-                    <div class="template-thumbnail" data-style="2" onclick="selectStyle(2)">
-                        <svg width="80" height="50" viewBox="0 0 100 60">...</svg>
-                    </div>
-                    <!-- Add more template thumbnails -->
+                <div class="template-option" data-style="2" onclick="selectStyle(2)">
+                    <svg width="80" height="50" viewBox="0 0 100 60">
+                        <rect width="100%" height="100%" fill="#f0f0f0" stroke="#ccc"/>
+                    </svg>
                 </div>
             </div>
 
-            <div class="download-options">
-                <sl-button variant="primary" onclick="downloadDesign()">
-                    <sl-icon name="download"></sl-icon>
-                    Download Single
-                </sl-button>
-                
-                <sl-button onclick="handleBulkUpload()">
-                    <sl-icon name="upload"></sl-icon>
-                    Bulk Upload Excel
-                </sl-button>
-                
-                <sl-input type="file" id="excelUpload" accept=".xlsx,.csv" style="display: none;"></sl-input>
+            <div>
+                <label>Product Name: <input type="text" id="productName" value="Sample Product"></label><br>
+                <label>Price: <input type="number" id="price" value="9.99" step="0.01"></label><br>
+                <label>Barcode: <input type="text" id="barcode" value="123456789"></label><br>
+                <label><input type="checkbox" id="showSale"> Show Sale Badge</label>
             </div>
+
+            <button onclick="updatePreview()">Update Preview</button>
+            <button onclick="downloadSVG()">Download SVG</button>
         </div>
 
-        <div class="preview-container">
-            <div id="previewWrapper"></div>
-            <div class="preview-controls">
-                <sl-select label="File Format" id="fileFormat">
-                    <sl-option value="svg">SVG</sl-option>
-                    <sl-option value="png">PNG</sl-option>
-                    <sl-option value="pdf">PDF</sl-option>
-                </sl-select>
-                
-                <sl-button-group>
-                    <sl-button onclick="zoomOut()">-</sl-button>
-                    <sl-button onclick="resetZoom()">100%</sl-button>
-                    <sl-button onclick="zoomIn()">+</sl-button>
-                </sl-button-group>
-            </div>
-        </div>
+        <div class="preview" id="preview"></div>
     </div>
 
-    <!-- Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace/shoelace.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
     <script>
-        let currentDesign = {
-            style: 1,
-            size: '100x60',
-            orientation: 'horizontal',
-            zoom: 1
-        };
+        let currentStyle = 1;
 
-        // Initialize with default values
-        document.querySelectorAll('sl-input, sl-select, sl-checkbox').forEach(el => {
-            el.addEventListener('sl-change', updatePreview);
-        });
+        function selectStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.template-option').forEach(opt => 
+                opt.classList.toggle('selected', opt.dataset.style == style)
+            );
+            updatePreview();
+        }
 
         function updatePreview() {
             const design = {
-                ...currentDesign,
+                style: currentStyle,
                 productName: document.getElementById('productName').value,
-                price: document.getElementById('productPrice').value,
+                price: document.getElementById('price').value,
                 barcode: document.getElementById('barcode').value,
-                showWeight: document.getElementById('showWeight').checked,
-                showPricePerKg: document.getElementById('showPricePerKg').checked,
-                showSale: document.getElementById('showSale').checked,
-                size: document.getElementById('sizeSelect').value,
-                orientation: document.getElementById('orientation').value
+                showSale: document.getElementById('showSale').checked
             };
 
             const svg = generateSVG(design);
-            document.getElementById('previewWrapper').innerHTML = svg;
+            document.getElementById('preview').innerHTML = svg;
             
-            // Generate barcode if exists
+            // Generate barcode
             if(design.barcode) {
-                JsBarcode("#barcode-img", design.barcode, {
+                JsBarcode("#barcode-svg", design.barcode, {
                     format: "CODE128",
                     displayValue: false,
-                    height: 20
+                    height: 40
                 });
             }
         }
 
-        function generateSVG(design) {
-            const [width, height] = design.size.split('x').map(Number);
-            return `
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                     width="${width}mm" 
-                     height="${height}mm"
-                     viewBox="0 0 ${width} ${height}"
-                     style="transform: scale(${currentDesign.zoom})">
-                    ${this[`template${design.style}`](design)}
-                </svg>`;
-        }
-
-        function template1(design) {
-            return `
-                <rect width="100%" height="100%" fill="#fff" rx="3"/>
-                <text x="50%" y="20%" dominant-baseline="middle" text-anchor="middle"
-                      font-size="4" font-weight="bold">${design.productName}</text>
-                ${design.showSale ? this.saleBadge(design) : ''}
-                <text x="50%" y="50%" font-size="8" fill="#2563eb"
-                      text-anchor="middle">$${design.price}</text>
-                <g id="barcode-container" transform="translate(10, 70)">
-                    <image id="barcode-img"/>
-                </g>
-            `;
-        }
-
-        function saleBadge(design) {
-            return `
-                <rect x="5" y="5" width="20" height="20" fill="#dc2626" rx="2"/>
-                <text x="15" y="15" fill="white" font-size="3" 
-                      text-anchor="middle" dominant-baseline="middle">SALE</text>
-            `;
-        }
-
-        async function handleBulkUpload() {
-            const file = document.getElementById('excelUpload').files[0];
-            const data = await readExcel(file);
-            const zip = new JSZip();
+        function generateSVG({style, productName, price, barcode, showSale}) {
+            let svgContent = '';
             
-            data.forEach((row, index) => {
-                const svg = generateSVG({...currentDesign, ...row});
-                zip.file(`price-tag-${index}.svg`, svg);
-            });
-
-            zip.generateAsync({type: "blob"}).then(content => {
-                saveAs(content, "price-tags.zip");
-            });
+            switch(style) {
+                case 1:
+                    svgContent = `
+                        <svg width="100%" height="100%" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100%" height="100%" fill="#ffffff" stroke="#cccccc"/>
+                            <text x="50%" y="20%" text-anchor="middle" font-size="5">${productName}</text>
+                            <text x="50%" y="50%" text-anchor="middle" font-size="8" fill="#0066cc">$${price}</text>
+                            ${showSale ? '<rect x="5" y="5" width="20" height="20" fill="#ff0000"/><text x="15" y="15" fill="#fff" font-size="4" text-anchor="middle">SALE</text>' : ''}
+                            <g transform="translate(10, 45)">
+                                <svg id="barcode-svg"></svg>
+                            </g>
+                        </svg>`;
+                    break;
+                    
+                case 2:
+                    svgContent = `
+                        <svg width="100%" height="100%" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100%" height="100%" fill="#f0f0f0" stroke="#cccccc"/>
+                            <text x="10%" y="30%" font-size="6">${productName}</text>
+                            <text x="10%" y="60%" font-size="10" fill="#333">$${price}</text>
+                            ${showSale ? '<circle cx="90" cy="10" r="8" fill="#ff0000"/><text x="90" y="12" fill="#fff" font-size="4" text-anchor="middle">SALE</text>' : ''}
+                            <g transform="translate(50, 40)">
+                                <svg id="barcode-svg"></svg>
+                            </g>
+                        </svg>`;
+                    break;
+            }
+            
+            return svgContent;
         }
 
-        async function readExcel(file) {
-            const reader = new FileReader();
-            return new Promise((resolve) => {
-                reader.onload = (e) => {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    resolve(XLSX.utils.sheet_to_json(sheet));
-                };
-                reader.readAsArrayBuffer(file);
-            });
+        function downloadSVG() {
+            const svg = document.getElementById('preview').querySelector('svg');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], {type: "image/svg+xml"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "price-tag.svg";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
-
-        function zoomIn() { currentDesign.zoom *= 1.1; updatePreview(); }
-        function zoomOut() { currentDesign.zoom *= 0.9; updatePreview(); }
-        function resetZoom() { currentDesign.zoom = 1; updatePreview(); }
 
         // Initial preview
         updatePreview();
